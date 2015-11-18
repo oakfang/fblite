@@ -1,0 +1,60 @@
+mixin likersBlock(post, currentUser)
+  - var likers = (post.likers && post.likers.get()) || [];
+  if likers.length === 1
+    p
+      a(href="/users/#{likers[0]._id}")=likers[0].name
+      span &nbsp; likes this
+  else if likers.length
+    p
+      each liker in likers.slice(0, -2)
+        a(href="/users/#{liker._id}") #{liker.name}
+        span ,&nbsp;
+      - var last = likers.slice(-2)
+      a(href="/users/#{last[0]._id}")=last[0].name
+      span &nbsp;and&nbsp;
+      a(href="/users/#{last[1]._id}")=last[1].name
+      span &nbsp;like this
+  else
+    br
+  a.card-link(href="#", onClick="toggleLike('#{post._id}', '#{currentUser._id}')")
+    if post.likers.has(currentUser)
+      span Unlike
+    else
+      span Like
+  a.card-link(href="#", onClick="comment('#{post._id}', '#{currentUser._id}')") Comment
+
+mixin printComment(currentUser, post)
+  li.list-group-item
+    p
+      b: a(href="/users/#{post.poster._id}")=post.poster.name
+      span.pull-right=(new Date(post.timestamp)).toGMTString()
+    p=post.text    
+    +likersBlock(post, currentUser)
+    - var comments = (post.comments && post.comments.get()) || [];
+    if comments.length
+      hr
+      ul.list-group
+        each comment in comments
+          +printComment(currentUser, comment)
+  
+mixin printPost(currentUser, post)
+  .card(style="padding: 5px;background-color:aliceblue;")
+    h4.card-title
+      if !post.wallOwner || post.poster._id === post.wallOwner._id      
+        a(href="/users/#{post.poster._id}")=post.poster.name        
+      else
+        a(href="/users/#{post.poster._id}")=post.poster.name
+        span &nbsp;&#10148;&nbsp;
+        if post.wallOwner.type === 'Page'
+          a(href="/pages/#{post.wallOwner._id}")=post.wallOwner.name
+        else
+          a(href="/users/#{post.wallOwner._id}")=post.wallOwner.name
+      span.pull-right(style="font-size:70%;")=(new Date(post.timestamp)).toGMTString()
+    p.card-text=post.text
+    +likersBlock(post, currentUser)    
+    - var comments = (post.comments && post.comments.get()) || [];
+    if comments.length
+      hr
+      ul.list-group(style="font-size:80%;")
+        each comment in comments
+          +printComment(currentUser, comment)

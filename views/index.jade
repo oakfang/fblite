@@ -1,0 +1,27 @@
+include ./navbar.jade
+include ./post.jade
+
+doctype html
+html(lang="en")
+  head
+    title FB-lite
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/css/bootstrap.min.css", rel="stylesheet" integrity="sha256-GHW2S7IZAQe8+YkyL99LyDj1zdWXSPOG+JZafCtKiSc= sha512-vxM32w6T7zJ83xOQ6FT4CEFnlasqmkcB0+ojgbI0N6ZtSxYvHmT7sX2icN07TqEqr5wdKwoLkmB8sAsGAjCJHg==" crossorigin="anonymous")
+    include ./scripts.jade
+  body
+    +navbar(current)
+    if !current
+      .list-group
+        each user in users
+          a.list-group-item(href="/users/#{user._id}", class=(user._id === current ? 'active' : ''))=user.name
+    else
+      - var posts = currentUser.posted.get().concat(currentUser.friends.get().map(f=>f.posted.get()).reduce((ps, p) => ps.concat(p), [])).filter(p=>!p.isComment).sort((p1, p2) => p2.timestamp - p1.timestamp)
+      .container(style="padding-top: 20px;")
+        .input-group
+          input#status-box.form-control(type="text", placeholder="What's on your mind?")
+          span.input-group-btn
+            button.btn.btn-primary(type="button", onClick="postStatus('#{current}', '#{current}')") Post
+        hr
+        each post in posts
+          .post
+            +printPost(currentUser, post, 1)
+            hr

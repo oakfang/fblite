@@ -1,0 +1,10 @@
+mixin navbar(userId)
+  nav.navbar.navbar-dark.bg-primary
+    a.navbar-brand(href="/") FB-lite
+    if userId
+      .btn-group.pull-right        
+        a.btn.btn-secondary-outline(href="/users/#{userId}") Me
+        a.btn.btn-success-outline(href="/page") Create Page
+        a.btn.btn-danger-outline(href="/logout") Logout
+    else
+      a.pull-right.btn.btn-secondary-outline(href="/me") Login

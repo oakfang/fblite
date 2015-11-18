@@ -1,0 +1,71 @@
+include ./navbar.jade
+include ./post.jade
+
+doctype html
+html(lang="en")
+  head
+    title=user.name
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/css/bootstrap.min.css", rel="stylesheet" integrity="sha256-GHW2S7IZAQe8+YkyL99LyDj1zdWXSPOG+JZafCtKiSc= sha512-vxM32w6T7zJ83xOQ6FT4CEFnlasqmkcB0+ojgbI0N6ZtSxYvHmT7sX2icN07TqEqr5wdKwoLkmB8sAsGAjCJHg==" crossorigin="anonymous")
+    include ./scripts.jade
+  body
+    +navbar(currentUser ? currentUser._id :  null)
+    .container
+      h1
+        span=user.name
+        small (#{user.age.toFixed(1)})
+      hr
+      .row
+        .col-md-3
+          .card
+            .card-header Friends
+            - var friends = (user.friends && user.friends.get()) || [];
+              if friends.length
+                ul.list-group
+                  each friend in friends
+                    li.list-group-item: a(href="/users/#{friend._id}")=friend.name
+              else
+                .card-block
+                  p.card-text #{user.name} has no friends :(
+          .card
+            .card-header #{user.name} Likes
+            - var likes = user.likes.get().filter(m => m.type != 'Post');
+              if likes.length
+                ul.list-group
+                  each like in likes
+                    li.list-group-item: a(href="/#{like.type.toLowerCase() + 's'}/#{like._id}")=like.name
+              else
+                .card-block
+                  p.card-text #{user.name} likes nothing :(
+                    
+          if currentUser && user._id === currentUser._id
+            if suggestedFriends.length
+              .card
+                .card-header Suggested Friends
+                ul.list-group
+                  each friend in suggestedFriends
+                    li.list-group-item: a(href="/users/#{friend._id}")=friend.name
+            - var ownedPages = currentUser.ownedPages.get()
+            if ownedPages.length
+              .card
+                .card-header Your Pages
+                ul.list-group
+                  each page in ownedPages
+                    li.list-group-item: a(href="/pages/#{page._id}")=page.name
+        .col-md-9
+          h3 Wall Posts
+          if currentUser && (currentUser._id === user._id || user.friends.has(currentUser))
+            .input-group(style="width: 50%;")
+              input#status-box.form-control(type="text", placeholder="How are you?")
+              span.input-group-btn
+                button.btn.btn-primary(type="button", onClick="postStatus('#{user._id}', '#{currentUser._id}')") Post        
+          else if (currentUser)
+            button.btn.btn-success(style="button", onClick="addFriend('#{user._id}', '#{currentUser._id}')") + Add Friend
+          hr
+          if currentUser
+            - var posts = (user.wallPosts && user.wallPosts.get()) || [];
+            each post in posts.sort(sorter)
+              +printPost(currentUser, post, 1)
+              hr
+          else
+            .alert.alert-warning You have to log in to see posts :(
+      

@@ -1,0 +1,52 @@
+script.
+  function postStatus (userId, id) {
+    var statusBox = document.getElementById('status-box');
+    fetch('/users/'+userId+'/post', {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({text: statusBox.value, id: id})
+    }).then(function () {
+      document.location.reload(true);
+    });
+  }
+
+  function toggleLike(postId, id) {
+    fetch('/posts/'+postId+'/toggleLike', {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({id: id})
+    }).then(function () {
+      document.location.reload(true);
+    });
+  }
+
+  function comment(postId, id) {
+    var text = prompt('Your comment:');
+    if (text) {
+      fetch('/posts/'+postId+'/comment', {
+        method: 'POST',
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify({id: id, text: text})
+      }).then(function () {
+        document.location.reload(true);
+      });
+    }
+  }
+
+  function addFriend(userId, id) {
+    fetch('/users/'+userId+'/add', {
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({id: id})
+    }).then(function () {
+      document.location.reload(true);
+    });
+  }
