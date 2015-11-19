@@ -1,6 +1,6 @@
 'use strict';
 
-const Model = require('synograph').SynoModel;
+const modelsFactory = require('synograph').modelsFactory;
 
 const mixins = {
   Likers(properties) {
@@ -11,8 +11,8 @@ const mixins = {
   }
 };
 
-module.exports = function (g) {
-  const Person = Model(g, 'Person', {
+module.exports = modelsFactory({
+  Person: {
     mixins: [mixins.HasWall],
     properties: 'name age'.split(' '),
     connections: [
@@ -34,9 +34,8 @@ module.exports = function (g) {
         }
       }
     }
-  });
-
-  const Place = Model(g, 'Place', {
+  },
+  Place: {
     mixins: [mixins.Likers, mixins.HasWall],
     properties: 'name'.split(' '),
     connections: [
@@ -44,9 +43,8 @@ module.exports = function (g) {
       {name: 'natives', type: 'Person', collection: true, reverse: 'from'},
       {name: 'dwellers', type: 'Person', collection: true, reverse: 'livesIn'}
     ]
-  });
-
-  const Post = Model(g, 'Post', {
+  },
+  Post: {
     mixins: [mixins.Likers],
     properties: 'text timestamp isComment'.split(' '),
     connections: [
@@ -64,15 +62,12 @@ module.exports = function (g) {
         }
       }
     }
-  });
-
-  const Page = Model(g, 'Page', {
+  },
+  Page: {
     mixins: [mixins.Likers, mixins.HasWall],
     properties: 'name'.split(' '),
     connections: [
       {name: 'owner', type: 'Person', reverse: 'ownedPages'}
     ]
-  });
-
-  return {Person, Place, Post, Page};
-};
+  }
+});
