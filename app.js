@@ -13,7 +13,7 @@ app.use(cookieParser());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-SynoGraph.load(path.join(__dirname, 'data')).then(g => {
+SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
   const models = require('./models')(g);
   g.on('change', () => console.log('[GRAPH:CHANGE]'));
   g.on('persist-end', () => console.log('[GRAPH:PERSISTED]'));
@@ -21,7 +21,12 @@ SynoGraph.load(path.join(__dirname, 'data')).then(g => {
   app.get('/', (req, res) => {
     let current = req.cookies.user;
     let currentUser = current ? models.Person(current) : null;
-    res.render('index', {users: g.query(models.Person.find(() => true)), current, currentUser});
+    Promise.all([
+      g.query(models.Person.find()),
+      g.query(models.Page.find())
+    ]).then(results => {
+      res.render('index', {users: results[0], pages: results[1], current, currentUser})
+    });
   });
 
   app.get('/users/:id', (req, res) => {

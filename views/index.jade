@@ -14,6 +14,13 @@ html(lang="en")
         each user in users
           a.list-group-item(href="/users/#{user._id}", class=(user._id === current ? 'active' : ''))=user.name
     else
+      - var suggetedPages = pages.filter(page => !currentUser.likes.has(page))
+      if suggetedPages.length
+        .alert.alert-info
+          p
+            span Hey, why not like&nbsp;
+            a(href="/pages/#{suggetedPages[0]._id}")=suggetedPages[0].name
+            span ?
       - var posts = currentUser.posted.get().concat(currentUser.friends.get().map(f=>f.posted.get()).reduce((ps, p) => ps.concat(p), [])).filter(p=>!p.isComment).sort((p1, p2) => p2.timestamp - p1.timestamp)
       .container(style="padding-top: 20px;")
         .input-group

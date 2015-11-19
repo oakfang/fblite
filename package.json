@@ -22,6 +22,6 @@
     "express": "^4.13.3",
     "jade": "^1.11.0",
     "lodash": "^3.10.1",
-    "synograph": "^0.1.0"
+    "synograph": "^0.2.0"
   }
 }

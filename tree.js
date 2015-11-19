@@ -2,7 +2,7 @@
 
 const path = require('path');
 const _ = require('lodash');
-const SynoGraph = require('..').SynoGraph;
+const SynoGraph = require('synograph').SynoGraph;
 
 function printPost(user, post, level) {
   if (!post.wallOwner || post.poster._id === user._id) {
