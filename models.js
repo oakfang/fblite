@@ -26,8 +26,8 @@ module.exports = modelsFactory({
     ],
     dynamicProperties: {
       post() {
-        return (text, wall) => {
-          let post = Post({text, timestamp: Date.now(), isComment: false});
+        return (PostModel, text, wall) => {
+          let post = PostModel({text, timestamp: Date.now(), isComment: false});
           post.poster = this;
           post.wallOwner = wall || this;
           return post;
@@ -54,8 +54,8 @@ module.exports = modelsFactory({
     ],
     dynamicProperties: {
       comment() {
-        return (posterModel, text) => {
-          let post = Post({text, timestamp: Date.now(), isComment: true});
+        return (PostModel, posterModel, text) => {
+          let post = PostModel({text, timestamp: Date.now(), isComment: true});
           post.poster = posterModel;
           this.comments.add(post);
           return post;

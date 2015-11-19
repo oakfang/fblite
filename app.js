@@ -58,7 +58,7 @@ SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
   app.post('/users/:id/post', (req, res) => {
     let user = models.Person(req.params.id);
     let currentUser = models.Person(req.body.id);
-    currentUser.post(req.body.text, user);
+    currentUser.post(models.Post, req.body.text, user);
     res.end();
   });
 
@@ -80,7 +80,7 @@ SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
   app.post('/posts/:id/comment', (req, res) => {
     let post = models.Post(req.params.id);
     let currentUser = models.Person(req.body.id);
-    post.comment(currentUser, req.body.text);
+    post.comment(models.Post, currentUser, req.body.text);
     res.end();
   });
 
@@ -97,11 +97,13 @@ SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
   });
 
   app.post('/login', (req, res) => {
-    let users = g.query(models.Person.find(u => u.name === req.body.name));
-    if (!users.length) res.status(404).end();
-    let user = users[0];
-    res.cookie('user', user._id);
-    res.redirect('/users/' + user._id);
+    g.query(models.Person.find({key: 'name', op: '===', value: req.body.name}))
+    .then(users => {
+      if (!users.length) res.status(404).end();
+      let user = users[0];
+      res.cookie('user', user._id);
+      res.redirect('/users/' + user._id);
+    });
   });
 
   app.post('/pages', (req, res) => {
