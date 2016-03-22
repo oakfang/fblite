@@ -21,7 +21,6 @@
     "cookie-parser": "^1.4.0",
     "express": "^4.13.3",
     "jade": "^1.11.0",
-    "lodash": "^3.10.1",
-    "synograph": "^0.2.4"
+    "synograph": "file:///C:\\Users\\alon\\dev\\projects\\synograph"
   }
 }

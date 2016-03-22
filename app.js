@@ -2,7 +2,7 @@
 
 const path = require('path');
 const _ = require('lodash');
-const SynoGraph = require('synograph').SynoGraph;
+const SynoGraph = require('synograph').PersistentGraph;
 const app = require('express')();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -13,7 +13,7 @@ app.use(cookieParser());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
+SynoGraph.start(path.join(__dirname, 'data')).then(g => {
   const models = require('./models')(g);
   g.on('change', () => console.log('[GRAPH:CHANGE]'));
   g.on('persist-end', () => console.log('[GRAPH:PERSISTED]'));
@@ -21,12 +21,9 @@ SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
   app.get('/', (req, res) => {
     let current = req.cookies.user;
     let currentUser = current ? models.Person(current) : null;
-    Promise.all([
-      g.query(models.Person.find()),
-      g.query(models.Page.find())
-    ]).then(results => {
-      res.render('index', {users: results[0], pages: results[1], current, currentUser})
-    });
+    const pages = g.query(models.Page.find());
+    const users = g.query(models.Person.find());
+    res.render('index', {users, pages, current, currentUser});
   });
 
   app.get('/users/:id', (req, res) => {
@@ -97,13 +94,11 @@ SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
   });
 
   app.post('/login', (req, res) => {
-    g.query(models.Person.find({key: 'name', op: '===', value: req.body.name}))
-    .then(users => {
-      if (!users.length) res.status(404).end();
+      const users = g.query(models.Person.find(p => p.name === req.body.name, 1));
+      if (!users.length) return res.status(404).end();
       let user = users[0];
       res.cookie('user', user._id);
       res.redirect('/users/' + user._id);
-    });
   });
 
   app.post('/pages', (req, res) => {
@@ -116,5 +111,5 @@ SynoGraph.load(path.join(__dirname, 'data'), '*.ctr').then(g => {
     if (err) throw err;
   });
 
-  app.listen(3000, () => console.log('Ready'));
-});
+  app.listen(4000, () => console.log('Ready'));
+}).catch(console.error);
