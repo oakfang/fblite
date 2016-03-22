@@ -52,6 +52,17 @@ SynoGraph.start(path.join(__dirname, 'data')).then(g => {
     });
   });
 
+  app.get('/places/:id', (req, res) => {
+    let page = models.Place(req.params.id);
+    let current = req.cookies.user;
+    let currentUser = current ? models.Person(current) : null;
+    res.render('place', {
+      page,
+      currentUser,
+      sorter(p1, p2) {return p2.timestamp - p1.timestamp}
+    });
+  });
+
   app.post('/users/:id/post', (req, res) => {
     let user = models.Person(req.params.id);
     let currentUser = models.Person(req.body.id);

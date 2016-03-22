@@ -1,0 +1,49 @@
+include ./navbar.jade
+include ./post.jade
+
+doctype html
+html(lang="en")
+  head
+    title=page.name
+    link(href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha/css/bootstrap.min.css", rel="stylesheet" integrity="sha256-GHW2S7IZAQe8+YkyL99LyDj1zdWXSPOG+JZafCtKiSc= sha512-vxM32w6T7zJ83xOQ6FT4CEFnlasqmkcB0+ojgbI0N6ZtSxYvHmT7sX2icN07TqEqr5wdKwoLkmB8sAsGAjCJHg==" crossorigin="anonymous")
+    include ./scripts.jade
+  body
+    +navbar(currentUser ? currentUser._id :  null)
+    .container
+      h1
+        span=page.name
+        if currentUser
+          .pull-right
+            if page.likers.has(currentUser)
+              button.btn.btn-primary-outline(style="button", onClick="toggleLike('#{page._id}', '#{currentUser._id}')") Unlike
+            else
+              button.btn.btn-primary(style="button", onClick="toggleLike('#{page._id}', '#{currentUser._id}')") Like
+      hr
+      .row
+        .col-md-3
+          .card
+            .card-header Likers
+            - var likers = (page.likers && page.likers.get()) || [];
+              if likers.length
+                ul.list-group
+                  each liker in likers
+                    li.list-group-item: a(href="/users/#{liker._id}")=liker.name
+              else
+                .card-block
+                  p.card-text Page has no likers :(
+        .col-md-9
+          h3 Wall Posts
+          if currentUser && page.likers.has(currentUser)
+            .input-group(style="width: 50%;")
+              input#status-box.form-control(type="text", placeholder="How are you?")
+              span.input-group-btn
+                button.btn.btn-primary(type="button", onClick="postStatus('#{page._id}', '#{currentUser._id}')") Post        
+          hr
+          if currentUser
+            - var posts = (page.wallPosts && page.wallPosts.get()) || [];
+            each post in posts.sort(sorter)
+              +printPost(currentUser, post, 1)
+              hr
+          else
+            .alert.alert-warning You have to log in to see posts :(
+      
