@@ -3,6 +3,7 @@
 const path = require('path');
 const _ = require('lodash');
 const SynoGraph = require('synograph').PersistentGraph;
+const jsonQuery = require('sjql');
 const app = require('express')();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -90,6 +91,10 @@ SynoGraph.start(path.join(__dirname, 'data')).then(g => {
     let currentUser = models.Person(req.body.id);
     post.comment(models.Post, currentUser, req.body.text);
     res.end();
+  });
+
+  app.post('/query', (req, res) => {
+    res.json({results: jsonQuery(g, req.body)});
   });
 
   app.get('/me', (req, res) => {
