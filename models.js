@@ -1,7 +1,5 @@
 'use strict';
 
-const modelsFactory = require('synograph').modelsFactory;
-
 const mixins = {
   Likers(properties) {
     properties.connections.push({name: 'likers', type: 'Person', collection: true, reverse: 'likes'});
@@ -11,7 +9,7 @@ const mixins = {
   }
 };
 
-module.exports = modelsFactory({
+module.exports = {
   Person: {
     mixins: [mixins.HasWall],
     properties: 'name age'.split(' '),
@@ -70,4 +68,4 @@ module.exports = modelsFactory({
       {name: 'owner', type: 'Person', reverse: 'ownedPages'}
     ]
   }
-});
+};
